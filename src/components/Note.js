@@ -1,53 +1,74 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import '../App.css';
 
-function Note({text}) {
+const requestURL = 'http://localhost:7777/notes';
+const headers = {
+    'Content-Type': 'application/json'
+}
+
+function Note() {
     const [notes, setNotes] = useState([]);
 
     const handleRemove = id => {
-        setNotes(prevNotes => prevNotes.filter(o => o.id !== id));
+        const url = requestURL + `/${id}`;
+        fetch(url, {method: 'DELETE'});
     };
+
+    const update =() => {
+        fetch(requestURL, {method: 'GET'}).then(response => {
+            return response.json();
+        }).then((data) => {
+            setNotes(() => {
+                return data;
+            })
+        });
+    }
 
     const handleSubmit = evt => {
         evt.preventDefault();
-        if (!form.date || !form.km) return;
-        form.date = parseDate(form.date);
-        setRecords(prevRecords => {
-            const arr = prevRecords.slice();
-            //проверить если уже есть такая дата
-            const index = arr.findIndex((item) => item.id === form.date);
-            if (index > -1) {
-                const km = String(Number(arr[index].km) + Number(form.km));
-                arr.splice(index, 1);
-                arr.push(new RecordModel(form.date, km));
-                arr.sort((a, b) => compare(a.id, b.id));
-
-            } else {
-                const record = new RecordModel(form.date, form.km);
-                arr.push(record);
-                arr.sort((a, b) => compare(a.id, b.id));
-            }
-            setForm({date: '', km: ''});
-            return [...arr];
-        });
+        const story = document.querySelector(".story");
+        if (!story.value) return;
+        const body = {
+            "id": 0,
+            "content": story.value
+        }
+        fetch(requestURL, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: headers
+        }).then(() => {});
+        story.value = '';
     };
 
+    useEffect(update);
+
     return (
-        <>
-            <div className={"external"}>
-                <button className={"close"} onClick={() => handleRemove(id)}>X</button>
-                <div className={"internal"}>{text}</div>
+        <div className={"main"}>
+            <div className={"header"}>
+                <h2>Notes</h2>
+                <button className={"update"} onClick={()=>update()}>Update</button>
             </div>
+            {notes.map((element) => {
+                return <div className={"external"} key={element.id}>
+                    <button className={"close"} onClick={() => handleRemove(element.id)}>X</button>
+                    <div className={"internal"}>{element.content}</div>
+                </div>
+            })
+            }
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="date" className="form-label">New Note</label>
+                    <label className="form-label">New Note</label>
                 </div>
-                <div className={note-text}></div>
-                <div>
-                    <input type={"submit"} value={"OK"}/>
+                <div className="note-text">
+                    <textarea className="story"
+                              rows="5" cols="33">
+                    </textarea>
+                    <div>
+                        <input type={"submit"} className={"button"} value={"Add"}/>
+                    </div>
                 </div>
             </form>
-        </>
+        </div>
     )
 
 }
