@@ -11,7 +11,7 @@ function Note() {
 
     const handleRemove = id => {
         const url = requestURL + `/${id}`;
-        fetch(url, {method: 'DELETE'});
+        fetch(url, {method: 'DELETE'}).then(()=>{});
     };
 
     const update =() => {
@@ -40,7 +40,7 @@ function Note() {
         story.value = '';
     };
 
-    useEffect(update);
+    useEffect(update, [notes]);
 
     return (
         <div className={"main"}>
