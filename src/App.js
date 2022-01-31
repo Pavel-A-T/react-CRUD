@@ -1,9 +1,9 @@
-import Note from './components/Note';
+import ListNotes from './components/ListNotes';
 import './App.css';
 
 function App() {
   return (
-    <Note />
+    <ListNotes />
   );
 }
 

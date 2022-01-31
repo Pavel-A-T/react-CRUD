@@ -6,38 +6,42 @@ const headers = {
     'Content-Type': 'application/json'
 }
 
-function Note() {
+function ListNotes() {
     const [notes, setNotes] = useState([]);
+    const [form, setForm] = useState({story: ''});
 
-    const handleRemove = id => {
-        const url = requestURL + `/${id}`;
-        fetch(url, {method: 'DELETE'}).then(()=>{});
+    const handleChange = evt => {
+        const {name, value} = evt.target;
+        setForm(prevForm => ({...prevForm, [name]: value}));
     };
 
-    const update =() => {
-        fetch(requestURL, {method: 'GET'}).then(response => {
+    const handleRemove = async id => {
+        const url = requestURL + `/${id}`;
+        await fetch(url, {method: 'DELETE'});
+    };
+
+    const update = async () => {
+        const data = await fetch(requestURL, {method: 'GET'}).then(response => {
             return response.json();
-        }).then((data) => {
-            setNotes(() => {
-                return data;
-            })
         });
+        setNotes(() => {
+            return data;
+        })
     }
 
-    const handleSubmit = evt => {
+    const handleSubmit = async evt => {
         evt.preventDefault();
-        const story = document.querySelector(".story");
-        if (!story.value) return;
+        if (!form.story) return;
         const body = {
             "id": 0,
-            "content": story.value
+            "content": form.story
         }
-        fetch(requestURL, {
+        await fetch(requestURL, {
             method: 'POST',
             body: JSON.stringify(body),
             headers: headers
-        }).then(() => {});
-        story.value = '';
+        });
+        setForm({story:''});
     };
 
     useEffect(update, [notes]);
@@ -46,7 +50,7 @@ function Note() {
         <div className={"main"}>
             <div className={"header"}>
                 <h2>Notes</h2>
-                <button className={"update"} onClick={()=>update()}>Update</button>
+                <button className={"update"} onClick={() => update()}>Update</button>
             </div>
             {notes.map((element) => {
                 return <div className={"external"} key={element.id}>
@@ -60,8 +64,8 @@ function Note() {
                     <label className="form-label">New Note</label>
                 </div>
                 <div className="note-text">
-                    <textarea className="story"
-                              rows="5" cols="33">
+                    <textarea name={"story"} className="story"
+                              rows="5" cols="33" onChange={handleChange} value={form.story}>
                     </textarea>
                     <div>
                         <input type={"submit"} className={"button"} value={"Add"}/>
@@ -73,4 +77,4 @@ function Note() {
 
 }
 
-export default Note;
+export default ListNotes;
