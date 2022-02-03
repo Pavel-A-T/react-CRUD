@@ -18,6 +18,7 @@ function ListNotes() {
     const handleRemove = async id => {
         const url = requestURL + `/${id}`;
         await fetch(url, {method: 'DELETE'});
+        await update();
     };
 
     const update = async () => {
@@ -42,9 +43,10 @@ function ListNotes() {
             headers: headers
         });
         setForm({story:''});
+        await update();
     };
 
-    useEffect(update, [notes]);
+    useEffect(update);
 
     return (
         <div className={"main"}>
